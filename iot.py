@@ -2,9 +2,10 @@
 import smbus
 import math
 import time
+from datetime import datetime
 from elasticsearch import Elasticsearch
 from requests.auth import HTTPBasicAuth
-from elastic_settings import IP
+from elastic_settings import IP, USER, PASS
 
 power_mgmt_1 = 0x6b
 power_mgmt_2 = 0x6c
@@ -41,11 +42,7 @@ address = 0x68
 
 bus.write_byte_data(address, power_mgmt_1, 0)
 
-print('Elastic config')
-user = input('Username: ')
-password = input('Password: ')
-
-es = Elasticsearch([IP], http_auth=(user, password), scheme='http', port=9200)
+es = Elasticsearch([IP], http_auth=(USER, PASS), scheme='http', port=9200)
 print(es.ping())
 
 print('Accel')
@@ -56,12 +53,23 @@ while 1:
     y_out = read_word_2c(0x3d) / 16384.0
     z_out = read_word_2c(0x3f) / 16384.0
     
-
+    
     # print('x out: ', ('%3f' % x_out))
     # print('y out: ', ('%3f' % y_out))
     # print('z out: ', ('%3f' % z_out))
 
-    print('x rotation: ', get_x_rotation(x_out, y_out, z_out), ' degrees ')
-    print('y rotation: ', get_y_rotation(x_out, y_out, z_out), ' degrees ')
+    x_rotation = get_x_rotation(x_out, y_out, z_out)
+    y_rotation = get_y_rotation(x_out, y_out, z_out)
+
+    print('x rotation: ', x_rotation, ' degrees ')
+    print('y rotation: ', y_rotation, ' degrees ')
     print('---------------------------------')
+    doc = {
+        'x_rotation': x_rotation,
+        'y_rotation': y_rotation,
+        'author': 'john dimatteo',
+        'timestamp': datetime.now(),
+    }
+    es.index(index='iotdata', body=doc)
     time.sleep(1)
+    exit()
