@@ -7,8 +7,6 @@ from elasticsearch import Elasticsearch
 from requests.auth import HTTPBasicAuth
 from elastic_settings import IP, USER, PASS
 
-time.sleep(5)
-
 power_mgmt_1 = 0x6b
 power_mgmt_2 = 0x6c
 
@@ -50,7 +48,7 @@ print(es.ping())
 print('Accel')
 print('--------')
 
-while 1:
+for i in range(0,30):
     x_out = read_word_2c(0x3b) / 16384.0
     y_out = read_word_2c(0x3d) / 16384.0
     z_out = read_word_2c(0x3f) / 16384.0
@@ -70,8 +68,9 @@ while 1:
         'x_rotation': round(x_rotation, 2),
         'y_rotation': round(y_rotation, 2),
         'author': 'john dimatteo',
-        'timestamp': datetime.now(),
+        '@timestamp': datetime.now(),
         'tag': 'P-0120',
+        'project': 'h111500'
     }
     es.index(index='iotdata', body=doc)
     time.sleep(1)
