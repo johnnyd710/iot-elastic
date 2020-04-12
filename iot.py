@@ -48,7 +48,7 @@ print(es.ping())
 print('Accel')
 print('--------')
 
-for i in range(0,30):
+for i in range(0,40):
     x_out = read_word_2c(0x3b) / 16384.0
     y_out = read_word_2c(0x3d) / 16384.0
     z_out = read_word_2c(0x3f) / 16384.0
@@ -68,9 +68,9 @@ for i in range(0,30):
         'x_rotation': round(x_rotation, 2),
         'y_rotation': round(y_rotation, 2),
         'author': 'john dimatteo',
-        '@timestamp': datetime.now(),
+        'timestamp': datetime.now(),
         'tag': 'P-0120',
         'project': 'h111500'
     }
     es.index(index='iotdata', body=doc)
-    time.sleep(1)
+    time.sleep(3)
